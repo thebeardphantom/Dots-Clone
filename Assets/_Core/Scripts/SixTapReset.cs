@@ -4,7 +4,7 @@ namespace DotsClone {
     public class SixTapReset : MonoBehaviour {
 
         private void Update() {
-            if(Input.touchCount >= 6) {
+            if(Input.touchCount >= 6 || Input.GetKeyDown(KeyCode.R)) {
                 Application.LoadLevel(Application.loadedLevel);
             }
         }

@@ -94,32 +94,16 @@ GameObject:
   m_Component:
   - 4: {fileID: 1197671321}
   - 20: {fileID: 1197671320}
-  - 92: {fileID: 1197671319}
-  - 124: {fileID: 1197671318}
   - 81: {fileID: 1197671317}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!81 &1197671317
 AudioListener:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1197671316}
-  m_Enabled: 1
---- !u!124 &1197671318
-Behaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1197671316}
-  m_Enabled: 1
---- !u!92 &1197671319
-Behaviour:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
@@ -186,7 +170,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!114 &1630207039
 MonoBehaviour:
@@ -247,8 +231,8 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_StaticEditorFlags: 4294967295
+  m_IsActive: 1
 --- !u!114 &1796394280
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -261,9 +245,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   linePrefab: {fileID: 167430, guid: 3f30cb7fbb357eb4faea8509ecc8b091, type: 2}
-  points:
-  - {x: 0, y: 0}
-  - {x: 0, y: 0}
+  connections: []
 --- !u!4 &1796394281
 Transform:
   m_ObjectHideFlags: 0

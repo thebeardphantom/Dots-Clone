@@ -21,7 +21,6 @@ namespace DotsClone {
         Dot[,] dotArray;
         bool isRunningAsyncOperation;
 
-        public Color[] colors { get { return _colors; } }
         public float dotSize { get { return 32f / dotPPU; } }
         public sbyte xSize { get { return _xSize; } }
         public sbyte ySize { get { return _ySize; } }
@@ -43,7 +42,7 @@ namespace DotsClone {
         private void Start() {
             ExecuteDotOperation(false, (ref Dot dot, sbyte xGridPosition, sbyte yGridPosition) => {
                 var targetPosition = GetPositionForCoordinates(xGridPosition, yGridPosition);
-                dot.Spawn(targetPosition, xGridPosition, yGridPosition, colors);
+                dot.Spawn(targetPosition, xGridPosition, yGridPosition);
             });
         }
 

@@ -4,10 +4,11 @@ using UnityEngine;
 namespace DotsClone {
     public class ConnectorLines : MonoBehaviour {
         public GameObject linePrefab;
-        public List<Vector2> points = new List<Vector2>();
+        public List<Dot> connections = new List<Dot>();
 
         List<LineRenderer> lines = new List<LineRenderer>();
         PrefabPool pool;
+        Color currentDrawColor;
 
         private void Awake() {
             pool = new PrefabPool(linePrefab, transform, 5);
@@ -16,35 +17,42 @@ namespace DotsClone {
         }
 
         private void TouchSystem_DragEnd() {
-            points.Clear();
+            connections.Clear();
+            foreach(var l in lines) {
+                l.SetPosition(0, Vector3.zero);
+                l.SetPosition(1, Vector3.zero);
+                pool.Return(l.gameObject);
+            }
+            lines.Clear();
         }
 
         private void TouchSystem_TouchHit(Collider2D collider) {
-            points.Add(collider.transform.position);
+            var dot = collider.GetComponent<Dot>();
+            if(connections.Count == 0) {
+                currentDrawColor = Game.get.selectedTheme.FromDotType(dot.dotType);
+            }
+            if(!connections.Contains(dot)) {
+                print("TouchSystem_TouchHit");
+                connections.Add(dot);
+                lines.Add(pool.Get().GetComponent<LineRenderer>());
+            }
         }
 
         private void Update() {
-            while(lines.Count != points.Count) {
-                if(lines.Count < points.Count) {
-                    lines.Add(pool.Get().GetComponent<LineRenderer>());
-                }
-                else if(lines.Count > points.Count) {
-                    var line = lines[lines.Count - 1];
-                    lines.RemoveAt(lines.Count - 1);
-                    pool.Return(line.gameObject);
-                }
+            if(connections.Count == 0) {
+                return;
             }
 
-            for(var i = 0; i < points.Count - 1; i++) {
-                var line = lines[i];
-                line.SetPosition(0, points[i]);
-                if(i == points.Count - 2) {
-                    line.SetPosition(1, TouchSystem.get.pointerWorldPosition);
-                }
-                else {
-                    line.SetPosition(1, points[i + 1]);
+            LineRenderer line = null;
+            for(var i = 0; i < connections.Count; i++) {
+                line = lines[i];
+                line.SetColors(currentDrawColor, currentDrawColor);
+                line.SetPosition(0, connections[i].transform.position);
+                if(i + 1 != connections.Count) {
+                    line.SetPosition(1, connections[i + 1].transform.position);
                 }
             }
+            line.SetPosition(1, TouchSystem.get.pointerWorldPosition);
         }
     }
 }

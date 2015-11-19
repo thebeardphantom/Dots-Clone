@@ -30,7 +30,7 @@ namespace DotsClone {
         }
 
         private void Update() {
-            if(isDragging && ((Application.isEditor && !Input.GetMouseButtonDown(0)) || Input.touchCount == 0)) {
+            if(isDragging && ((Application.isEditor && Input.GetMouseButtonUp(0)) || (!Application.isEditor && Input.touchCount == 0))) {
                 isDragging = false;
                 if(DragEnd != null) {
                     DragEnd();
@@ -45,7 +45,7 @@ namespace DotsClone {
         }
 
         private void CheckInputDown(Vector2 screenPoint) {
-            var collider = Physics2D.OverlapPoint(Camera.main.ScreenToWorldPoint(screenPoint));
+            var collider = Physics2D.OverlapPoint(Camera.main.ScreenToWorldPoint(screenPoint), LayerMask.GetMask("Dot"));
             if(collider != null && TouchHit != null) {
                 TouchHit(collider);
                 isDragging = true;
