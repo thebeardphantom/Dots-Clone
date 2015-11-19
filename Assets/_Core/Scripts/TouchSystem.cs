@@ -2,13 +2,14 @@
 
 namespace DotsClone {
     public class TouchSystem : Singleton<TouchSystem> {
-        public delegate void OnTouchHit(Collider2D collider);
+        public delegate void OnTouchHit(Dot dot);
         public static event OnTouchHit TouchHit;
 
         public delegate void OnDragEnd();
         public static event OnDragEnd DragEnd;
 
-        public bool isDragging;
+        bool isDragging;
+        bool isInsideDot;
 
         public Vector2 pointerWorldPosition {
             get {
@@ -32,6 +33,7 @@ namespace DotsClone {
         private void Update() {
             if(isDragging && ((Application.isEditor && Input.GetMouseButtonUp(0)) || (!Application.isEditor && Input.touchCount == 0))) {
                 isDragging = false;
+                isInsideDot = false;
                 if(DragEnd != null) {
                     DragEnd();
                 }
@@ -46,9 +48,15 @@ namespace DotsClone {
 
         private void CheckInputDown(Vector2 screenPoint) {
             var collider = Physics2D.OverlapPoint(Camera.main.ScreenToWorldPoint(screenPoint), LayerMask.GetMask("Dot"));
-            if(collider != null && TouchHit != null) {
-                TouchHit(collider);
+            if(collider != null && !isInsideDot) {
+                isInsideDot = true;
                 isDragging = true;
+                if(TouchHit != null) {
+                    TouchHit(collider.GetComponent<Dot>());
+                }
+            }
+            else if(collider == null && isInsideDot) {
+                isInsideDot = false;
             }
         }
     }

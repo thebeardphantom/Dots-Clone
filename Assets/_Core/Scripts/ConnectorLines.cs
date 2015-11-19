@@ -8,7 +8,9 @@ namespace DotsClone {
 
         List<LineRenderer> lines = new List<LineRenderer>();
         PrefabPool pool;
+
         Color currentDrawColor;
+        Dot.Type currentType;
 
         private void Awake() {
             pool = new PrefabPool(linePrefab, transform, 5);
@@ -19,23 +21,36 @@ namespace DotsClone {
         private void TouchSystem_DragEnd() {
             connections.Clear();
             foreach(var l in lines) {
-                l.SetPosition(0, Vector3.zero);
-                l.SetPosition(1, Vector3.zero);
-                pool.Return(l.gameObject);
+                ReturnLine(l);
             }
             lines.Clear();
         }
 
-        private void TouchSystem_TouchHit(Collider2D collider) {
-            var dot = collider.GetComponent<Dot>();
+        private void TouchSystem_TouchHit(Dot dot) {
+            var isValid = false;
+
             if(connections.Count == 0) {
-                currentDrawColor = Game.get.selectedTheme.FromDotType(dot.dotType);
+                currentType = dot.dotType;
+                currentDrawColor = Game.get.selectedTheme.FromDotType(currentType);
+                isValid = true;
             }
-            if(!connections.Contains(dot)) {
-                print("TouchSystem_TouchHit");
+            else if(connections[connections.Count - 1] == dot) {
+                connections.RemoveAt(connections.Count - 1);
+                ReturnLine(lines[lines.Count - 1]);
+            }
+            else {
+                isValid = connections[connections.Count - 1].IsValidNeighbor(dot) && !connections.Contains(dot);
+            }
+            if(isValid) {
                 connections.Add(dot);
                 lines.Add(pool.Get().GetComponent<LineRenderer>());
             }
+        }
+
+        private void ReturnLine(LineRenderer line) {
+            line.SetPosition(0, Vector3.zero);
+            line.SetPosition(1, Vector3.zero);
+            pool.Return(line.gameObject);
         }
 
         private void Update() {

@@ -3,14 +3,14 @@ using UnityEngine;
 
 namespace DotsClone {
     public class Dot : MonoBehaviour {
-        public new SpriteRenderer renderer { get; private set; }
+        public SpriteRenderer sprite { get; private set; }
 
         public sbyte xGridPosition { get; private set; }
         public sbyte yGridPosition { get; private set; }
         public Type dotType { get; private set; }
 
         private void Awake() {
-            renderer = GetComponent<SpriteRenderer>();
+            sprite = GetComponent<SpriteRenderer>();
         }
 
         public void ClearDot() {
@@ -23,7 +23,7 @@ namespace DotsClone {
 
             var types = Enum.GetValues(typeof(Type));
             dotType = (Type)types.GetValue(UnityEngine.Random.Range(1, types.Length));
-            renderer.color = Game.get.selectedTheme.FromDotType(dotType);
+            sprite.color = Game.get.selectedTheme.FromDotType(dotType);
 
             LeanTween.moveLocal(gameObject, targetPosition, 0.4f).setEase(LeanTweenType.easeOutBounce).setDelay((0.05f * yGridPosition) + 0.5f);
 
@@ -35,6 +35,26 @@ namespace DotsClone {
         //public void Update() {
 
         //}
+
+        public bool IsValidNeighbor(Dot other) {
+            if(this == other || other.dotType != dotType) {
+                return false;
+            }
+            else {
+                var xDiff = Mathf.Abs(other.xGridPosition - xGridPosition);
+                var yDiff = Mathf.Abs(other.yGridPosition - yGridPosition);
+
+                // In diagonal direction
+                if(xDiff > 0 && yDiff > 0) {
+                    return false;
+                }
+                // Not directly next to dot
+                if(xDiff > 1 || yDiff > 1) {
+                    return false;
+                }
+                return true;
+            }
+        }
 
         public enum Type : byte {
             Cleared,
