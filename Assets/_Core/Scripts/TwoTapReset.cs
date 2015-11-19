@@ -1,12 +1,13 @@
 ﻿using UnityEngine;
 
 namespace DotsClone {
-    public class SixTapReset : MonoBehaviour {
+    public class TwoTapReset : MonoBehaviour {
 
         private void Update() {
-            if(Input.touchCount >= 6 || Input.GetKeyDown(KeyCode.R)) {
+            if(Input.touchCount >= 2 || Input.GetKeyDown(KeyCode.R)) {
                 Application.LoadLevel(Application.loadedLevel);
             }
         }
+
     }
 }
