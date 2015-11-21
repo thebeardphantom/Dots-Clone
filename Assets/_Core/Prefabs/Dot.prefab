@@ -10,6 +10,7 @@ GameObject:
   - 4: {fileID: 408524}
   - 212: {fileID: 21277134}
   - 114: {fileID: 11496366}
+  - 114: {fileID: 11481974}
   - 58: {fileID: 5837282}
   m_Layer: 8
   m_Name: Dot
@@ -43,6 +44,17 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: .159999996
+--- !u!114 &11481974
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 138286}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b1e7fba4f0936044b52f91e26652982, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &11496366
 MonoBehaviour:
   m_ObjectHideFlags: 1

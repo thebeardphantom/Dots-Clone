@@ -4,61 +4,49 @@ using UnityEngine;
 namespace DotsClone {
     public class ConnectorLines : MonoBehaviour {
         public GameObject linePrefab;
-        public List<Dot> connections = new List<Dot>();
 
+        ConnectionSystem connectionSystem;
         List<LineRenderer> lines = new List<LineRenderer>();
         PrefabPool pool;
 
-        Color currentDrawColor;
-        Dot.Type currentType;
-
         private void Awake() {
+            connectionSystem = FindObjectOfType<ConnectionSystem>();
             pool = new PrefabPool(linePrefab, transform, 5);
-            TouchSystem.TouchHit += TouchSystem_TouchHit;
-            TouchSystem.DragEnd += TouchSystem_DragEnd;
+            DotTouchIO.SelectionEnded += DotTouchIO_SelectionEnded;
         }
 
-        private void TouchSystem_DragEnd() {
-            connections.Clear();
-            foreach(var l in lines) {
-                ReturnLine(l);
+        private void DotTouchIO_SelectionEnded() {
+            for(int i = 0; i < lines.Count; i++) {
+                ReturnLine(lines[i]);
             }
             lines.Clear();
         }
 
-        private void TouchSystem_TouchHit(Dot dot) {
-            var isValid = false;
-
-            if(connections.Count == 0) {
-                currentType = dot.dotType;
-                currentDrawColor = Game.get.selectedTheme.FromDotType(currentType);
-                isValid = true;
-            }
-            else if(connections[connections.Count - 1] == dot) {
-                connections.RemoveAt(connections.Count - 1);
-                ReturnLine(lines[lines.Count - 1]);
-            }
-            else {
-                isValid = connections[connections.Count - 1].IsValidNeighbor(dot) && !connections.Contains(dot);
-            }
-            if(isValid) {
-                connections.Add(dot);
-                lines.Add(pool.Get().GetComponent<LineRenderer>());
-            }
-        }
-
         private void ReturnLine(LineRenderer line) {
+            line.SetColors(Color.clear, Color.clear);
             line.SetPosition(0, Vector3.zero);
             line.SetPosition(1, Vector3.zero);
             pool.Return(line.gameObject);
+            lines.Remove(line);
         }
 
         private void Update() {
-            if(connections.Count == 0) {
-                return;
-            }
+            var connections = connectionSystem.activeConnections;
 
+            while(connections.Count > lines.Count) {
+                lines.Add(pool.Get().GetComponent<LineRenderer>());
+            }
+            while(connections.Count < lines.Count) {
+                ReturnLine(lines[lines.Count - 1]);
+            }
+            if(connections.Count > 0) {
+                DrawConnections(connections);
+            }
+        }
+
+        private void DrawConnections(List<Dot> connections) {
             LineRenderer line = null;
+            var currentDrawColor = Game.get.selectedTheme.FromDotType(connectionSystem.currentType);
             for(var i = 0; i < connections.Count; i++) {
                 line = lines[i];
                 line.SetColors(currentDrawColor, currentDrawColor);
@@ -67,7 +55,23 @@ namespace DotsClone {
                     line.SetPosition(1, connections[i + 1].transform.position);
                 }
             }
-            line.SetPosition(1, TouchSystem.get.pointerWorldPosition);
+
+            var pointer = GetPointerWorldPosition();
+            line.SetPosition(1, pointer);
+        }
+
+        private Vector2 GetPointerWorldPosition() {
+            var screen = Vector2.zero;
+            if(Application.isEditor) {
+                screen = Input.mousePosition;
+            }
+            else if(Input.touchCount > 0) {
+                screen = Input.GetTouch(0).position;
+            }
+            else {
+                return Vector2.zero;
+            }
+            return Camera.main.ScreenToWorldPoint(screen);
         }
     }
 }

@@ -1,8 +1,11 @@
-﻿using UnityEngine;
-
-namespace DotsClone {
+﻿namespace DotsClone {
     public class Game : Singleton<Game> {
+        public GameSession session;
         public DotsTheme selectedTheme = DotsTheme.defaultTheme;
-        //public DotsGrid currentGrid;
+
+        protected override void Awake() {
+            base.Awake();
+            session = new GameSession();
+        }
     }
 }

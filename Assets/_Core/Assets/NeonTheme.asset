@@ -11,8 +11,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65a54512e37af434782977f224d206df, type: 3}
   m_Name: NeonTheme
   m_EditorClassIdentifier: 
-  dotA: {r: 1, g: .139393926, b: 0, a: 1}
+  backgroundColor: {r: .625, g: .625, b: .625, a: 1}
+  dotA: {r: 1, g: 0, b: 0, a: 1}
   dotB: {r: 0, g: .747058809, b: 1, a: 1}
-  dotC: {r: 0, g: 1, b: .0736842155, a: 1}
+  dotC: {r: 0, g: 1, b: 0, a: 1}
   dotD: {r: .747058809, g: 0, b: 1, a: 1}
   dotE: {r: 1, g: 1, b: 0, a: 1}
