@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace DotsClone {
     /// <summary>
@@ -13,7 +14,12 @@ namespace DotsClone {
     ///     If the dot is somewhere else in the chain, a square has been created
     /// </summary>
     public class ConnectionSystem : MonoBehaviour {
+        public delegate void OnDotConnected(Dot dot);
+        public static event OnDotConnected DotConnected;
+
         public DotType currentType { get; private set; }
+
+        public bool isSquare { get; private set; }
 
         public List<Dot> activeConnections = new List<Dot>();
 
@@ -21,10 +27,17 @@ namespace DotsClone {
             DotTouchIO.DotSelected += DotTouchIO_DotSelection;
         }
 
+        private void Update() {
+            if(Input.GetMouseButtonUp(0)) {
+                activeConnections.Clear();
+            }
+        }
+
         private void DotTouchIO_DotSelection(Dot dot) {
             var isValid = false;
 
             if(activeConnections.Count == 0) {
+                isSquare = false;
                 currentType = dot.dotType;
                 isValid = true;
             }
@@ -32,7 +45,6 @@ namespace DotsClone {
                     activeConnections[Mathf.Clamp(activeConnections.Count - 2, 0, int.MaxValue)] == dot) {
                 // Undoing a connection
                 activeConnections.RemoveAt(activeConnections.Count - 1);
-                // TODO Remove line
             }
             else {
                 isValid = activeConnections[activeConnections.Count - 1].IsValidNeighbor(dot);
@@ -40,8 +52,13 @@ namespace DotsClone {
 
             if(isValid) {
                 activeConnections.Add(dot);
-                // TODO Add line
+                if(DotConnected != null) {
+                    DotConnected(dot);
+                }
             }
+
+            // TODO Optimize
+            isSquare = activeConnections.Count != activeConnections.Distinct().Count();
         }
     }
 }

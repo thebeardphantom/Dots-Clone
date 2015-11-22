@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections;
 using UnityEngine;
 
 namespace DotsClone {
     public class Dot : MonoBehaviour, IComparable<Dot> {
         private GridCoordinates _coordinates;
 
-        public SpriteRenderer sprite { get; private set; }
+        public SpriteRenderer[] sprites { get; private set; }
         public GridCoordinates coordinates {
             get {
                 return _coordinates;
@@ -16,34 +17,50 @@ namespace DotsClone {
             }
         }
         public DotType dotType { get; private set; }
+        bool isLerping;
 
         private void Awake() {
-            sprite = GetComponent<SpriteRenderer>();
+            sprites = GetComponentsInChildren<SpriteRenderer>();
         }
 
         public void ClearDot() {
+            isLerping = true;
             LeanTween.scale(gameObject, Vector3.zero, 0.2f).onComplete += () => {
+                isLerping = false;
                 gameObject.SetActive(false);
             };
         }
 
-        public void Spawn(Vector2 targetPosition, GridCoordinates coordinates) {
-            this.coordinates = coordinates;
+        public void Spawn(Vector2 targetPosition) {
+            StartCoroutine(DoSpawn(targetPosition));
+        }
 
+        private IEnumerator DoSpawn(Vector2 targetPosition) {
+            while(isLerping) {
+                yield return null;
+            }
+            gameObject.SetActive(true);
             var types = Enum.GetValues(typeof(DotType));
-            dotType = (DotType)types.GetValue(UnityEngine.Random.Range(1, types.Length));
-            sprite.color = Game.get.selectedTheme.FromDotType(dotType);
+            dotType = (DotType)UnityEngine.Random.Range(1, types.Length);
+
+            foreach(var s in sprites) {
+                s.color = Game.get.selectedTheme.FromDotType(dotType);
+            }
+
+            transform.localScale = Vector3.one;
 
             MoveToPosition(targetPosition, 0.5f);
 
             // Set start position above the screen so they can lerp down
             targetPosition.y += DotsGrid.Y_DOT_SPAWN_OFFSET;
             transform.localPosition = targetPosition;
-            gameObject.SetActive(true);
         }
 
         public void MoveToPosition(Vector2 targetPosition, float delay) {
-            LeanTween.moveLocal(gameObject, targetPosition, 0.4f).setEase(LeanTweenType.easeOutBounce).setDelay((0.05f * coordinates.row) + delay);
+            isLerping = true;
+            LeanTween.moveLocal(gameObject, targetPosition, 0.4f).setEase(LeanTweenType.easeOutBounce).setDelay((0.05f * coordinates.row) + delay).onComplete += () => {
+                isLerping = false;
+            };
         }
 
         public bool IsValidNeighbor(Dot other) {

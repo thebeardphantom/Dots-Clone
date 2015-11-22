@@ -1,17 +1,19 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace DotsClone {
+    [RequireComponent(typeof(ConnectionSystem))]
     public class DotsGrid : MonoBehaviour {
         public const float Y_DOT_SPAWN_OFFSET = 8f;
 
         [SerializeField]
         GameObject dotPrefab;
         [SerializeField]
-        sbyte columns = 6;
+        byte columns = 6;
         [SerializeField]
-        sbyte rows = 6;
+        byte rows = 6;
         [SerializeField]
         float dotSpacing = 5f;
         [SerializeField]
@@ -23,7 +25,7 @@ namespace DotsClone {
         public float dotSize { get { return 32f / dotPPU; } }
 
         private void Awake() {
-            connectionSystem = gameObject.AddComponent<ConnectionSystem>();
+            connectionSystem = gameObject.GetComponent<ConnectionSystem>();
             DotTouchIO.SelectionEnded += DotTouchIO_SelectionEnded;
             CreateDotObjects();
         }
@@ -43,7 +45,7 @@ namespace DotsClone {
         private void Start() {
             ExecuteDotOperation((dot) => {
                 var targetPosition = GetPositionForCoordinates(dot.coordinates);
-                dot.Spawn(targetPosition, dot.coordinates);
+                dot.Spawn(targetPosition);
             });
         }
 
@@ -63,25 +65,57 @@ namespace DotsClone {
         }
 
         private void DotTouchIO_SelectionEnded() {
-            byte[] removedPerColumn = new byte[columns];
-            byte[] startsAtRow = new byte[rows];
-
-            foreach(var connection in connectionSystem.activeConnections) {
-                var coordinates = connection.coordinates; // Store old coordinates
-                removedPerColumn[coordinates.column]++;
-                startsAtRow[coordinates.column] = (byte)Mathf.Max(startsAtRow[coordinates.column], coordinates.row);
-                connection.ClearDot(); // Clear dot status
+            if(connectionSystem.activeConnections.Count < 2) {
+                return;
             }
 
+            byte[] dotsRemovedPerColumn = new byte[columns];
+            byte[] startsAtRow = new byte[columns];
+
+            if(connectionSystem.isSquare) {
+                connectionSystem.activeConnections.Clear();
+                foreach(var d in dots) {
+                    if(d.dotType == connectionSystem.currentType) {
+                        connectionSystem.activeConnections.Add(d);
+                    }
+                }
+            }
+
+            // Mark all connected dots
+            foreach(var dot in connectionSystem.activeConnections) {
+                var dotCoord = dot.coordinates;
+                dotsRemovedPerColumn[dotCoord.column]++;
+                startsAtRow[dotCoord.column] = (byte)Mathf.Max(startsAtRow[dotCoord.column], dotCoord.row);
+                dot.ClearDot(); // Clear dot status
+            }
+
+            // Set all affected dots to move to new position
             for(byte c = 0; c < columns; c++) {
+                var dotsRemoved = dotsRemovedPerColumn[c];
+                if(dotsRemoved == 0) {
+                    continue;
+                }
                 ExecuteDotOperation(c, (dot) => {
                     if(dot.coordinates.row <= startsAtRow[c]) {
                         return;
                     }
-                    dot.coordinates = new GridCoordinates(c, (byte)(dot.coordinates.row - removedPerColumn[c]));
+                    dot.coordinates = new GridCoordinates(c, (byte)(dot.coordinates.row - dotsRemoved));
                     dot.MoveToPosition(GetPositionForCoordinates(dot.coordinates), 0f);
                 });
             }
+
+            // For each column, recycle dots
+            for(byte c = 0; c < columns; c++) {
+                var removed = dotsRemovedPerColumn[c];
+                for(byte r = 0; r < removed; r++) {
+                    var row = (byte)(rows - (removed - r));
+                    var dot = connectionSystem.activeConnections[connectionSystem.activeConnections.Count - 1];
+                    dot.coordinates = new GridCoordinates(dot.coordinates.column, row);
+                    var targetPosition = GetPositionForCoordinates(dot.coordinates);
+                    dot.Spawn(targetPosition);
+                }
+            }
+
             connectionSystem.activeConnections.Clear();
             dots.Sort();
         }

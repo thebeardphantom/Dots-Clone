@@ -10,7 +10,8 @@ namespace DotsClone {
             base.OnInspectorGUI();
             var dot = target as Dot;
 
-            EditorGUILayout.LabelField("Coordinates", dot.coordinates.column.ToString());
+            EditorGUILayout.LabelField("Type", dot.dotType.ToString());
+            EditorGUILayout.LabelField("Column", dot.coordinates.column.ToString());
             EditorGUILayout.LabelField("Row", dot.coordinates.row.ToString());
         }
 

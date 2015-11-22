@@ -1,6 +1,7 @@
 ﻿namespace DotsClone {
     public struct GridCoordinates {
         public static readonly GridCoordinates zero = new GridCoordinates();
+        public static readonly GridCoordinates max = new GridCoordinates(byte.MaxValue, byte.MaxValue);
 
         /// <summary>
         /// X Position in Grid
