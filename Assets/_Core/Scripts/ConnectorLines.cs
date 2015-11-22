@@ -12,14 +12,6 @@ namespace DotsClone {
         private void Awake() {
             connectionSystem = FindObjectOfType<ConnectionSystem>();
             pool = new PrefabPool(linePrefab, transform, 5);
-            DotTouchIO.SelectionEnded += DotTouchIO_SelectionEnded;
-        }
-
-        private void DotTouchIO_SelectionEnded() {
-            for(int i = 0; i < lines.Count; i++) {
-                ReturnLine(lines[i]);
-            }
-            lines.Clear();
         }
 
         private void ReturnLine(LineRenderer line) {
@@ -37,7 +29,7 @@ namespace DotsClone {
                 lines.Add(pool.Get().GetComponent<LineRenderer>());
             }
             while(connections.Count < lines.Count) {
-                ReturnLine(lines[lines.Count - 1]);
+                ReturnLine(lines[0]);
             }
             if(connections.Count > 0) {
                 DrawConnections(connections);
