@@ -4,11 +4,16 @@ using UnityEngine;
 namespace DotsClone {
     /// <summary>
     /// A reusable pool class
+    /// Bits and pieces taken from Unity's UI object pool class
+    /// https://bitbucket.org/Unity-Technologies/ui/src/4f3cf8d16c1d8c6e681541a292855792e50b392e/UnityEngine.UI/UI/Core/Utility/ObjectPool.cs?at=5.2&fileviewer=file-view-default
     /// </summary>
     /// <typeparam name="T">The type of object to pool</typeparam>
     public abstract class AbstractPool<T> {
         readonly Stack<T> pool = new Stack<T>();
 
+        /// <summary>
+        /// Count of <typeparamref name="T"/> removed from pool
+        /// </summary>
         public int countActive { get; protected set; }
         public int countInactive { get { return pool.Count; } }
         public int count { get { return countActive + countInactive; } }
@@ -67,6 +72,11 @@ namespace DotsClone {
         protected virtual T CreateNew() {
             return System.Activator.CreateInstance<T>();
         }
+
+        /// <summary>
+        /// Used by inheriting classes to
+        /// run code post object creation
+        /// </summary>
         protected virtual void ProcessNew(T obj) { }
 
         protected abstract void OnGetFromPool(T obj);

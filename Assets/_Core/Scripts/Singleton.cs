@@ -16,6 +16,10 @@ namespace DotsClone {
             }
         }
 
+        /// <summary>
+        /// Used with RuntimeInitializeOnLoadMethod attribute
+        /// to allow a Singleton to create itself on load
+        /// </summary
         public static T DummyCreate() {
             return get;
         }
