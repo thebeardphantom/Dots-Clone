@@ -3,41 +3,49 @@ using System.Collections;
 using UnityEngine;
 
 namespace DotsClone {
+    /// <summary>
+    /// Code representation of a single dot.
+    /// Manages all placement operations of dots
+    /// </summary>
     public class Dot : MonoBehaviour, IComparable<Dot> {
+        private const float Y_DOT_SPAWN = 8f;
+        private const float PER_ROW_LERP_DELAY = 0.075f;
 
-        private GridCoordinates _coordinates;
-        private DotTouchAnimation touchAnimation;
+        public GridCoordinates coordinates;
+
+        /// <summary>
+        /// Helps with post clear spawn timing
+        /// </summary>
         private bool isLerping;
         private DotType _dotType;
 
         public SpriteRenderer[] sprites { get; private set; }
-        public GridCoordinates coordinates {
-            get {
-                return _coordinates;
-            }
-            set {
-                _coordinates = value;
-
-            }
-        }
         public DotType dotType {
             get {
                 return _dotType;
             }
+            // Using a property means we dont need an update loop
+            // to set sprite colors. We only set colors on type change.
             set {
                 _dotType = value;
-                foreach(var s in sprites) {
-                    s.color = Game.get.selectedTheme.FromDotType(dotType);
+                // Conditional fixes black dot issue
+                if(dotType != DotType.Cleared) {
+                    foreach(var s in sprites) {
+                        s.color = Game.get.selectedTheme.FromDotType(dotType);
+                    }
                 }
             }
         }
 
         private void Awake() {
             sprites = GetComponentsInChildren<SpriteRenderer>();
-            touchAnimation = GetComponentInChildren<DotTouchAnimation>();
         }
 
 #if UNITY_EDITOR
+        /// <summary>
+        /// Gives us a better visual representation of dot status in Hierarchy
+        /// Preprocessor directive used for build optimization
+        /// </summary>
         private void Update() {
             name = string.Format("Dot {0}x{1} {2}", coordinates.column, coordinates.row, dotType.ToString());
         }
@@ -55,6 +63,9 @@ namespace DotsClone {
             StartCoroutine(DoSpawn(targetPosition, delay));
         }
 
+        /// <summary>
+        /// Spawning is a coroutine so we can wait for clear lerp to finish
+        /// </summary>
         private IEnumerator DoSpawn(Vector2 targetPosition, float delay) {
             while(isLerping) {
                 yield return null;
@@ -62,19 +73,33 @@ namespace DotsClone {
             var types = Enum.GetValues(typeof(DotType));
             dotType = (DotType)UnityEngine.Random.Range(1, types.Length);
 
+            // Fixes scale if post-clear
             transform.localScale = Vector3.one;
 
+            // Queue dropdown lerp
             MoveToPosition(targetPosition, delay);
 
-            // Set start position above the screen so they can lerp down
-            targetPosition.y = DotsGrid.Y_DOT_SPAWN;
+            // Set start position above screen so dot can lerp down
+            targetPosition.y = Y_DOT_SPAWN;
             transform.localPosition = targetPosition;
-            touchAnimation.transform.localScale = Vector3.one;
+
+            // Resets the DotTouchAnimation obj
+            // And anything else that might exist
+            foreach(Transform child in transform) {
+                child.transform.localScale = Vector3.one;
+            }
         }
 
+        /// <summary>
+        /// LeanTweens a drop animation with a bounce ease
+        /// Delay is per-row, plus additional optional delay
+        /// </summary>
         public void MoveToPosition(Vector2 targetPosition, float delay) {
             isLerping = true;
-            LeanTween.moveLocal(gameObject, targetPosition, 0.4f).setEase(LeanTweenType.easeOutBounce).setDelay((0.075f * coordinates.row) + delay).onComplete += () => {
+
+            var lerp = LeanTween.moveLocal(gameObject, targetPosition, 0.4f);
+            lerp.setEase(LeanTweenType.easeOutBounce).setDelay((PER_ROW_LERP_DELAY * coordinates.row) + delay);
+            lerp.onComplete += () => {
                 isLerping = false;
             };
         }
@@ -84,6 +109,7 @@ namespace DotsClone {
                 return false;
             }
             else {
+                // ABS because we don't care about direction, easier compare
                 var rowDiff = Mathf.Abs(other.coordinates.row - coordinates.row);
                 var columnDiff = Mathf.Abs(other.coordinates.column - coordinates.column);
 

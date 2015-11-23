@@ -7,28 +7,36 @@ using UnityEngine;
 namespace DotsClone {
     [RequireComponent(typeof(ConnectionSystem))]
     public class DotsGrid : MonoBehaviour {
-        public const float Y_DOT_SPAWN = 8f;
+        private const float DOT_PIXEL_SIZE = 32f;
+
 
         [SerializeField]
-        GameObject dotPrefab;
+        private GameObject dotPrefab;
         [SerializeField]
-        byte columns = 6;
+        private byte columns = 6;
         [SerializeField]
-        byte rows = 6;
+        private byte rows = 6;
         [SerializeField]
-        float dotSpacing = 5f;
+        private float dotSpacing = 5f;
         [SerializeField]
-        float dotPPU = 100f;
+        private float dotPPU = 100f;
 
-        public List<Dot> dots = new List<Dot>();
-        ConnectionSystem connectionSystem;
+        private List<Dot> dots = new List<Dot>();
+        private ConnectionSystem connectionSystem;
 
-        public float dotSize { get { return 32f / dotPPU; } }
+        public float dotSize { get { return DOT_PIXEL_SIZE / dotPPU; } }
 
         private void Awake() {
             connectionSystem = gameObject.GetComponent<ConnectionSystem>();
             DotTouchIO.SelectionEnded += ClearSelectedDots;
             CreateDotObjects();
+        }
+
+        private void Start() {
+            ExecuteDotOperation((dot) => {
+                var targetPosition = GetPositionForCoordinates(dot.coordinates);
+                dot.Spawn(targetPosition, 0.5f);
+            });
         }
 
         private void CreateDotObjects() {
@@ -41,13 +49,6 @@ namespace DotsClone {
                     dots.Add(dot);
                 }
             }
-        }
-
-        private void Start() {
-            ExecuteDotOperation((dot) => {
-                var targetPosition = GetPositionForCoordinates(dot.coordinates);
-                dot.Spawn(targetPosition, 0.5f);
-            });
         }
 
         private Vector2 GetPositionForCoordinates(GridCoordinates position) {
@@ -107,17 +108,20 @@ namespace DotsClone {
 
             // 3. For each column, recycle dots
             for(byte c = 0; c < columns; c++) {
-                var removed = dotsRemovedInColumn[c];
-                for(byte r = 0; r < removed; r++) {
-                    var row = (byte)(rows - (removed - r));
-                    var dot = connectionSystem.activeConnections[connectionSystem.activeConnections.Count - 1];
-                    connectionSystem.activeConnections.RemoveAt(connectionSystem.activeConnections.Count - 1);
+                var removedCount = dotsRemovedInColumn[c];
+                for(byte r = 0; r < removedCount; r++) {
+                    // The lowest empty row
+                    var row = (byte)(rows - (removedCount - r));
+                    var lastDotIndex = connectionSystem.activeConnections.Count - 1;
+                    var dot = connectionSystem.activeConnections[lastDotIndex];
+
+                    connectionSystem.activeConnections.RemoveAt(lastDotIndex);
                     dot.coordinates = new GridCoordinates(c, row);
-                    var targetPosition = GetPositionForCoordinates(dot.coordinates);
-                    dot.Spawn(targetPosition, 0f);
+                    dot.Spawn(GetPositionForCoordinates(dot.coordinates), 0f);
                 }
             }
 
+            // Sanity check
             connectionSystem.activeConnections.Clear();
         }
 
@@ -133,10 +137,8 @@ namespace DotsClone {
 
 
         /// <summary>
-        /// 
+        /// Calls callback on all dots
         /// </summary>
-        /// <param name="dot">The current dot</param>
-        /// <returns>True if should continue, else break loop</returns>
         delegate void OnDotOperation(Dot dot);
         private void ExecuteDotOperation(OnDotOperation callback) {
             foreach(var d in dots) {
@@ -144,6 +146,9 @@ namespace DotsClone {
             }
         }
 
+        /// <summary>
+        /// Calls callback on all dots in column
+        /// </summary>
         private void ExecuteDotOperation(byte column, OnDotOperation callback) {
             foreach(var d in dots) {
                 if(d.coordinates.column == column) {

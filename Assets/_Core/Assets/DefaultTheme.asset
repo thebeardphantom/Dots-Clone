@@ -11,6 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65a54512e37af434782977f224d206df, type: 3}
   m_Name: DefaultTheme
   m_EditorClassIdentifier: 
+  backgroundColor: {r: 1, g: 1, b: 1, a: 1}
   dotA: {r: .921568632, g: .36470589, b: .274509817, a: 1}
   dotB: {r: .541176498, g: .737254918, b: 1, a: 1}
   dotC: {r: .541176498, g: .913725495, b: .568627477, a: 1}

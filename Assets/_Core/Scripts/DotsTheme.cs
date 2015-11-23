@@ -1,6 +1,10 @@
 ﻿using UnityEngine;
 
 namespace DotsClone {
+    /// <summary>
+    /// Defines a color scheme for the game
+    /// Uses a scriptable object so themes can be created as asset files
+    /// </summary>
     [CreateAssetMenu]
     public class DotsTheme : ScriptableObject {
         public static readonly DotsTheme defaultTheme = CreateInstance<DotsTheme>();
@@ -12,6 +16,9 @@ namespace DotsClone {
         public Color dotD = new Color32(153, 93, 181, 255);
         public Color dotE = new Color32(229, 219, 37, 255);
 
+        /// <summary>
+        /// Returns the color for a dot for the current theme.
+        /// </summary>
         public Color FromDotType(DotType type) {
             switch(type) {
                 case DotType.Cleared:

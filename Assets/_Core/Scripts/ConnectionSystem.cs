@@ -20,13 +20,22 @@ namespace DotsClone {
         [HideInInspector]
         public List<Dot> activeConnections = new List<Dot>();
 
+        /// <summary>
+        /// The current dot type defining our selection
+        /// </summary>
         public DotType currentType { get; private set; }
+        /// <summary>
+        /// Are we currently in a square shape?
+        /// </summary>
         public bool isSquare { get; private set; }
 
         private void Start() {
             DotTouchIO.DotSelected += HandleNewDot;
         }
 
+        /// <summary>
+        /// Helps fix some issues with not catching mouse up events.
+        /// </summary>
         private void Update() {
             if(Input.GetMouseButtonUp(0)) {
                 activeConnections.Clear();
@@ -43,7 +52,7 @@ namespace DotsClone {
             }
             else if(activeConnections[activeConnections.Count - 1] == dot ||
                     activeConnections[Mathf.Clamp(activeConnections.Count - 2, 0, int.MaxValue)] == dot) {
-                // Undoing a connection
+                // Undo connection if we pass over the last dot or the dot before it
                 activeConnections.RemoveAt(activeConnections.Count - 1);
             }
             else {
@@ -57,7 +66,7 @@ namespace DotsClone {
                 }
             }
 
-            // TODO Optimize
+            // TODO Potential optimization 
             isSquare = activeConnections.Count != activeConnections.Distinct().Count();
         }
     }

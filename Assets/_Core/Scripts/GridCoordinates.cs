@@ -1,7 +1,8 @@
 ﻿namespace DotsClone {
+    /// <summary>
+    /// Defines a dot's location in the dot grid
+    /// </summary>
     public struct GridCoordinates {
-        public static readonly GridCoordinates zero = new GridCoordinates();
-
         /// <summary>
         /// X Position in Grid
         /// </summary>
@@ -25,12 +26,12 @@
             return other.column == column && other.row == row;
         }
 
-        public static bool operator ==(GridCoordinates a, GridCoordinates b) {
-            return a.column == b.column && a.row == b.row;
+        public static bool operator ==(GridCoordinates left, GridCoordinates right) {
+            return left.column == right.column && left.row == right.row;
         }
 
-        public static bool operator !=(GridCoordinates a, GridCoordinates b) {
-            return a.column != b.column || a.row != b.row;
+        public static bool operator !=(GridCoordinates left, GridCoordinates right) {
+            return left.column != right.column || left.row != right.row;
         }
 
         public override int GetHashCode() {

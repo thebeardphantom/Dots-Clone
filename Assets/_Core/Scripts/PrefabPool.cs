@@ -2,35 +2,39 @@
 using UnityEngine;
 
 namespace DotsClone {
-public abstract class AbstractPool<T> {
-    readonly Stack<T> pool = new Stack<T>();
+    /// <summary>
+    /// A reusable pool class
+    /// </summary>
+    /// <typeparam name="T">The type of object to pool</typeparam>
+    public abstract class AbstractPool<T> {
+        readonly Stack<T> pool = new Stack<T>();
 
-    public int countActive { get; protected set; }
-    public int countInactive { get { return pool.Count; } }
-    public int count { get { return countActive + countInactive; } }
+        public int countActive { get; protected set; }
+        public int countInactive { get { return pool.Count; } }
+        public int count { get { return countActive + countInactive; } }
 
-    protected void InitFillPool(uint initCount) {
-        if(initCount > 0) {
-            var objs = new T[initCount];
-            for(int i = 0; i < initCount; i++) {
-                objs[i] = Get();
+        protected void InitFillPool(uint initCount) {
+            if(initCount > 0) {
+                var objs = new T[initCount];
+                for(int i = 0; i < initCount; i++) {
+                    objs[i] = Get();
+                }
+                for(int i = 0; i < initCount; i++) {
+                    Return(objs[i]);
+                }
             }
-            for(int i = 0; i < initCount; i++) {
-                Return(objs[i]);
-            }
         }
-    }
 
-    public T[] Get(int count) {
-        if(count <= 0) {
-            throw new System.ArgumentOutOfRangeException("count");
+        public T[] Get(int count) {
+            if(count <= 0) {
+                throw new System.ArgumentOutOfRangeException("count");
+            }
+            var array = new T[count];
+            for(int i = 0; i < count; i++) {
+                array[i] = Get();
+            }
+            return array;
         }
-        var array = new T[count];
-        for(int i = 0; i < count; i++) {
-            array[i] = Get();
-        }
-        return array;
-    }
 
         /// <summary>
         /// Same as <see cref="Get(int)"/> without allocating a new array
@@ -80,6 +84,9 @@ public abstract class AbstractPool<T> {
         }
     }
 
+    /// <summary>
+    /// A pool used for using a prefab many times efficiently
+    /// </summary>
     public class PrefabPool : AbstractPool<GameObject> {
         protected GameObject prefab;
         protected Transform parent;

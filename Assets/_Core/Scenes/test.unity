@@ -401,7 +401,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3a0a116c4a615f46adbff06ebbc1c94, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  seed: 0
+  useRandomSeed: 0
+  seed: 871
   selectedTheme: {fileID: 11400000, guid: f2600f5d5f92452458973254a57f1fa8, type: 2}
 --- !u!4 &1375159901
 Transform:
@@ -498,7 +499,6 @@ GameObject:
   m_Component:
   - 4: {fileID: 1630207040}
   - 114: {fileID: 1630207039}
-  - 114: {fileID: 1630207041}
   - 114: {fileID: 1630207042}
   m_Layer: 0
   m_Name: Grid
@@ -523,7 +523,6 @@ MonoBehaviour:
   rows: 6
   dotSpacing: .319999993
   dotPPU: 100
-  dots: []
 --- !u!4 &1630207040
 Transform:
   m_ObjectHideFlags: 0
@@ -536,17 +535,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
---- !u!114 &1630207041
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1630207038}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 44567a9b643fe1c4b8058c06047ceb5d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1630207042
 MonoBehaviour:
   m_ObjectHideFlags: 0

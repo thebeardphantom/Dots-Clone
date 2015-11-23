@@ -1,7 +1,11 @@
 ﻿using UnityEngine;
 
 namespace DotsClone {
-    public class Singleton<T> : MonoBehaviour where T : Singleton<T> {
+    /// <summary>
+    /// A reusable, consistent Singleton behavior base class
+    /// </summary>
+    /// <typeparam name="T">A self reference to the inheriting type</typeparam>
+    public abstract class Singleton<T> : MonoBehaviour where T : Singleton<T> {
         private static bool appQuitting;
         private static object @lock = new object();
         private static T _get;
