@@ -17,14 +17,14 @@ namespace DotsClone {
         public delegate void OnDotConnected(Dot dot);
         public static event OnDotConnected DotConnected;
 
-        public DotType currentType { get; private set; }
-
-        public bool isSquare { get; private set; }
-
+        [HideInInspector]
         public List<Dot> activeConnections = new List<Dot>();
 
+        public DotType currentType { get; private set; }
+        public bool isSquare { get; private set; }
+
         private void Start() {
-            DotTouchIO.DotSelected += DotTouchIO_DotSelection;
+            DotTouchIO.DotSelected += HandleNewDot;
         }
 
         private void Update() {
@@ -33,7 +33,7 @@ namespace DotsClone {
             }
         }
 
-        private void DotTouchIO_DotSelection(Dot dot) {
+        private void HandleNewDot(Dot dot) {
             var isValid = false;
 
             if(activeConnections.Count == 0) {

@@ -2,7 +2,7 @@
 
 namespace DotsClone {
     public class GameSession {
-        public int dotsCleared { get; private set; }
+        public int dotsCleared { get; set; }
 
         public GameSession() {
             Camera.main.backgroundColor = Game.get.selectedTheme.backgroundColor;
